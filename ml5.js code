@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Face Detection with ml5.js</title>
+  <!-- p5.js 및 ml5.js 라이브러리 로드 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.dom.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ml5/1.8.5/ml5.min.js"></script>
+</head>
+<body>
+  <script>
+    let video;
+    let detector;
+
+    function setup() {
+      // 캔버스 생성
+      createCanvas(640, 480);
+      // 웹캠 활성화
+      video = createCapture(VIDEO);
+      // 웹캠 크기 설정
+      video.size(width, height);
+      // 웹캠 숨김
+      video.hide();
+      // 얼굴 감지 모델 불러오기
+      detector = ml5.faceDetector(modelReady);
+    }
+
+    function modelReady() {
+      console.log('Model is ready!');
+      // 감지 시작
+      detector.detect(video, gotFaces);
+    }
+
+    function gotFaces(error, result) {
+      if (error) {
+        console.error(error);
+        return;
+      }
+      // 캔버스 초기화
+      clear();
+      // 웹캠 화면 그리기
+      image(video, 0, 0, width, height);
+      // 감지된 얼굴 주위에 원 그리기
+      for (let i = 0; i < result.length; i++) {
+        let face = result[i];
+        let x = face.x + face.width / 2;
+        let y = face.y + face.height / 2;
+        let d = face.width;
+        // 랜덤한 색상 선택
+        fill(random(255), random(255), random(255));
+        // 원 그리기
+        ellipse(x, y, d * 1.5);
+      }
+      // 다음 프레임에서 얼굴 감지 계속하기
+      detector.detect(video, gotFaces);
+    }
+  </script>
+</body>
+</html>
